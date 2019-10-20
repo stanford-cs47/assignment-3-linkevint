@@ -8,12 +8,25 @@
 */
 
 import React from 'react';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  Image,
+  TextInput,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ActivityIndicator,
+  Platform } from 'react-native';
 import { Images, Colors } from './App/Themes'
 import APIRequest from './App/Config/APIRequest'
 
 import News from './App/Components/News'
 import Search from './App/Components/Search'
+
+const { width, height } = Dimensions.get('window')
 
 export default class App extends React.Component {
 
@@ -25,42 +38,68 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-
     //uncomment this to run an API query!
-    //this.loadArticles();
+    this.loadArticles();
   }
 
-  async loadArticles(searchTerm = '', category = '') {
+  async loadArticles(searchTerm = '') {
     this.setState({articles:[], loading: true});
     var resultArticles = [];
-    if (category === '') {
-      resultArticles = await APIRequest.requestSearchPosts(searchTerm);
-    } else {
-      resultArticles = await APIRequest.requestCategoryPosts(category);
-    }
+    resultArticles = await APIRequest.requestSearchPosts(searchTerm);
     console.log(resultArticles);
     this.setState({loading: false, articles: resultArticles})
+  }
+
+  onChangeText = text => {
+    this.setState({ searchText: text });
+  }
+
+  handleClick = () => {
+    this.loadArticles(this.state.searchText);
+    this.setState( { searchText: '' });
   }
 
   render() {
     const {articles, loading} = this.state;
 
     return (
-      <SafeAreaView style={styles.container}>
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <SafeAreaView style={styles.container}>
 
-        <Text style={{textAlign: 'center'}}>Have fun! :) {"\n"} Start by changing the API Key in "./App/Config/AppConfig.js" {"\n"} Then, take a look at the following components: {"\n"} NavigationButtons {"\n"} Search {"\n"} News {"\n"} 🔥</Text>
+          {/*First, you'll need a logo*/}
+          <View style={styles.title}>
+            <Image
+              style={styles.titleImage}
+              source={Images.logo}
+              resizeMode='contain'
+            />
+          </View>
 
-        {/*First, you'll need a logo*/}
+          {/*Then your search bar*/}
+          <View>
+            <Search
+              text={this.state.searchText}
+              onChangeText={text => this.onChangeText(text)}
+              onPress={() => this.handleClick()}
+            />
+          </View>
 
-        {/*Then your search bar*/}
+          {/*And some news*/}
+          <View style={styles.news}>
+            {this.state.loading ? (
+              <ActivityIndicator size='large' color='gray' />
+            ) : (
+              <News articles={this.state.articles} />
+            )}
+          </View>
 
-        {/*And some news*/}
 
-        {/*Though, you can style and organize these however you want! power to you 😎*/}
+          {/*Though, you can style and organize these however you want! power to you 😎*/}
 
-        {/*If you want to return custom stuff from the NYT API, checkout the APIRequest file!*/}
+          {/*If you want to return custom stuff from the NYT API, checkout the APIRequest file!*/}
 
-      </SafeAreaView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     );
   }
 }
@@ -68,8 +107,27 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: 'column',
     backgroundColor: '#fff',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  title: {
+    flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    width: '100%',
+    height: (Platform.OS === 'ios') ? 64 : 54,
+  },
+  titleImage: {
+    width: '95%',
+    height: '100%',
+  },
+  news: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1
   }
 });

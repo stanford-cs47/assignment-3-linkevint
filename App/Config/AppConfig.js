@@ -8,7 +8,7 @@
 */
 
 export default { //just some keys and endpoints for the NYT API.
-  apiKey : '8f68cdf07d6c4228b7639cfdc201c4e0',
+  apiKey : 'KOS7sJpJ5KJt7yASM03bisF5ZTGgoO9c',
   articleSearch : 'https://api.nytimes.com/svc/search/v2/articlesearch.json',
   topStories: 'https://api.nytimes.com/svc/topstories/v2/'
 }
